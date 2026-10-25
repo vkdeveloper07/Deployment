@@ -144,6 +144,26 @@ field when required. A public live model service needs this guard and, for use b
 proper authentication, rate limiting, and budgets. `/health`, `/guide`, and `/api/config` do not
 expose credentials. Health/readiness only check process/configuration, not provider connectivity.
 
+## Vercel
+
+The app's Python dependencies, including `fastapi` and `uvicorn`, are already listed in the root
+`requirements.txt`. Vercel installs dependencies from that file during deployment, so set the
+Vercel project's **Root Directory** to this project folder (the folder containing `requirements.txt`)
+and make sure the file is committed. Do not point Vercel at `requirements-dev.txt` or install
+dependencies only in a local virtual environment. There is no additional Vercel-specific Python
+package required for this FastAPI app.
+
+Expose the ASGI app to Vercel with an `api/index.py` entry point:
+
+```python
+from app.main import app
+```
+
+The exported `app` is defined in `app.main`. After deployment, check the Vercel build log for
+dependency installation and confirm it is using the expected root directory and Python runtime.
+If the build still reports `ModuleNotFoundError: fastapi`, Vercel is not installing the committed
+root `requirements.txt` for that deployment.
+
 ## Verify and maintain
 
 ```bash
